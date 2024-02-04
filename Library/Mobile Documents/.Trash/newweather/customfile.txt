@@ -1,0 +1,44 @@
+from flask import Flask, request, jsonify
+import requests
+from pymongo import MongoClient
+
+app = Flask(__name__)
+
+# Connect to MongoDB (running in a Docker container)
+client = MongoClient('mongodb://mongo:27017/')
+db = client['weather_db']
+collection = db['weather_collection']
+
+@app.route('/get_weather', methods=['GET'])
+def custom_route():
+    user_input = request.args.get('city', default='Fort Wayne')
+
+    # Check if the data is already in the database
+    stored_data = collection.find_one({'city': user_input})
+    if stored_data:
+        return jsonify(stored_data)
+
+    # Replace 'YOUR_OPENWEATHERMAP_API_KEY' with your actual API key
+    api_key = '7050ff93230770172103ab380dbcc811'
+    weather_data = requests.get(
+        f"https://api.openweathermap.org/data/2.5/weather?q={user_input}&units=imperial&APPID={api_key}")
+
+    if weather_data.json().get('cod') == '404':
+        return jsonify({'error': 'City not found'}), 404
+    else:
+        weather = weather_data.json()['weather'][0]['main']
+        temp = round(weather_data.json()['main']['temp'])
+
+        # Store the data in MongoDB
+        new_data = {
+            'city': user_input,
+            'weather': weather,
+            'temperature': temp
+        }
+        collection.insert_one(new_data)
+
+        return jsonify(new_data)
+
+iif __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
