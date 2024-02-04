@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: customdockerfile
     ports:
       - "5000:5000"
     depends_on:
