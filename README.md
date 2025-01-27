@@ -1,4 +1,4 @@
-**Project Goal:** Classification of resumes into distinct categories using machine learning techniques.
+# Classification of resumes into distinct categories using machine learning techniques.
 
 **Tools and Libraries:** Use of Python libraries such as TensorFlow, scikit-learn, and NLP libraries like NLTK and TfidfVectorizer for preprocessing and modeling.
 
